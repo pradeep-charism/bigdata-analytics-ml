@@ -41,4 +41,4 @@ tweets_df3.head()
 tweets_df3.Text.head(30)
 
 # Export dataframe into a CSV
-tweets_df3.to_csv('data/stock_twits.csv', sep=',', index=False)
+tweets_df3.to_csv('data/stock_tweets.csv', sep=',', index=False)
