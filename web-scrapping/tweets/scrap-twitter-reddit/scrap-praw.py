@@ -37,4 +37,4 @@ for post in posts:
 top_posts = pd.DataFrame(posts_dict)
 print(top_posts)
 
-top_posts.to_csv("top_reddit_posts.csv", index=True)
+top_posts.to_csv("data/top_reddit_posts.csv", index=True)
