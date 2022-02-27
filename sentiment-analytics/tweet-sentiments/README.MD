@@ -7,3 +7,5 @@ columns = ['Ticker', 'Datetime', 'Tweet URL', 'Tweet Id', 'Tweet User Id', 'Text
 !pip install git+https://github.com/JustAnotherArchivist/snscrape.git
 !pip install pandas
 !pip install numpy==1.19.3 --user
+
+pip install wordcloud -version-compatible-operatingsystem
