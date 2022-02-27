@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import snscrape.modules.twitter as sntwitter
 
-maxTweets = 100
+maxTweets = 1000
 tweets = []
 
 keywords = ['TSLA', 'NVDA']
@@ -35,12 +35,11 @@ for keyword in keywords:
 
         content = [keyword, clean_text(tweet.content),
                    tweet.replyCount, tweet.retweetCount, tweet.likeCount, tweet.quoteCount,
-                   tweet.retweetedTweet, tweet.quotedTweet, totalMentions]
+                   totalMentions]
         tweets.append(content)
 
 # Creating a dataframe from the tweets list above
-columns = ['Ticker', 'Text', 'replyCount', 'retweetCount', 'likeCount', 'quoteCount',
-           'retweetedTweet', 'quotedTweet', 'mentionedUsers']
+columns = ['Ticker', 'Text', 'replyCount', 'retweetCount', 'likeCount', 'quoteCount', 'mentionedUsers']
 
 tweets_df2 = pd.DataFrame(tweets, columns=columns)
 tweets_df3 = tweets_df2.drop_duplicates(subset='Text', keep="last")

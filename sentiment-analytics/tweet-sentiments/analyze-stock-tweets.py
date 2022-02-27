@@ -19,6 +19,15 @@ def get_polarity(text):
     return TextBlob(text).sentiment.polarity
 
 
+def get_positive_negative_neutral_analysis(score):
+    if score < 0:
+        return "Negative"
+    elif score == 0:
+        return "Neutral"
+    else:
+        return "Positive"
+
+
 df = load_data()
 print(df.head())
 print('Dataset size:', df.shape)
@@ -26,6 +35,7 @@ print('Columns are:', df.columns)
 
 df['Subjectivity'] = df['Text'].apply(get_subjectivity)
 df['Polarity'] = df['Text'].apply(get_polarity)
+df['Analysis'] = df['Polarity'].apply(get_positive_negative_neutral_analysis)
 print(df)
 
 # Print word cloud
