@@ -11,7 +11,7 @@ def load_data():
     return data
 
 
-def get_sentiment(df, measurement="compound"):
+def get_sentiment(df_senti, measurement="compound"):
     """
     Given a DF of tweets, analyzes the tweets and returns a new DF
     of sentiment scores based on the given measurement.
@@ -22,10 +22,10 @@ def get_sentiment(df, measurement="compound"):
     sia = SentimentIntensityAnalyzer()
 
     # Getting the sentiment score
-    df['sentiment'] = df['Text'].apply(lambda x: sia.polarity_scores(x)[measurement])
+    df_senti['sentiment'] = df_senti['Text'].apply(lambda x: sia.polarity_scores(x)[measurement])
 
     # Creating a DF with the average sentiment score each day
-    sent_df = df.groupby('Date')['sentiment'].mean().reset_index()
+    sent_df = df_senti.groupby('Date')['sentiment'].mean().reset_index()
 
     # Converting the dates to datetime
     sent_df['Date'] = sent_df['Date'].apply(lambda x: datetime.strptime(x, "%Y-%m-%d"))
@@ -58,29 +58,29 @@ def get_stock_prices(ticker, start, end):
     return stock_df
 
 
-def show_sentiment_chart():
+def show_sentiment_chart(df_senti):
     global fig
-    fig = px.bar(sent_df,
-                 x=sent_df['Date'],
-                 y=sent_df['sentiment'],
+    fig = px.bar(df_senti,
+                 x=df_senti['Date'],
+                 y=df_senti['sentiment'],
                  title="Sentiment Score over Time")
     fig.show()
 
 
-def show_stock_returns_chart():
+def show_stock_returns_chart(df_stock_returns):
     global fig
-    fig = px.bar(stock_df,
-                 x=stock_df['Date'],
-                 y=stock_df['returns'],
+    fig = px.bar(df_stock_returns,
+                 x=df_stock_returns['Date'],
+                 y=df_stock_returns['returns'],
                  title="Stock % Returns over Time")
     fig.show()
 
 
-def show_sentiment_stock_price_combined_charts():
+def show_sentiment_stock_price_combined_charts(df_combined):
     global fig
-    print(comb_df)
+    print(df_combined)
     fig = px.bar(
-        comb_df,
+        df_combined,
         x='Date',
         y=['returns', 'sentiment'],
         barmode='group',
@@ -90,14 +90,14 @@ def show_sentiment_stock_price_combined_charts():
     fig.show()
 
 
-def show_prediction_accuracy_charts():
+def show_prediction_accuracy_charts(df_accuracy):
     global fig
-    print(match)
+    print(df_accuracy)
     fig = px.bar(
-        match,
+        df_accuracy,
         x=0,
-        y=match.index,
-        color=match.index,
+        y=df_accuracy.index,
+        color=df_accuracy.index,
         title="Instances when Sentiment predicts Return",
         labels={"index": "Prediction",
                 "0": "Count"}
@@ -106,32 +106,33 @@ def show_prediction_accuracy_charts():
 
 
 # Load the stock data from  file
-df = load_data()
+df_stock_data = load_data()
 
 # Build the sentiment analytics data frame
-sent_df = get_sentiment(df)
-print(sent_df)
+df_sentiment = get_sentiment(df_stock_data)
+print(df_sentiment)
 
 # Retrieve the stock prices from Yahoo finance
-stock_df = get_stock_prices("TSLA", "2022-02-02", "2022-02-10")
-print(stock_df)
+df_stock_daily_prices = get_stock_prices("TSLA", "2022-02-02", "2022-02-10")
+print(df_stock_daily_prices)
 
 # Merge the two sentiment and stock prices data frames
-comb_df = sent_df.merge(stock_df, how='outer', sort=True)
+df_combined_sentiment_stock_price = df_sentiment.merge(df_stock_daily_prices, how='outer', sort=True)
 
 # Shifting the sentiment scores 1 day to compensate for lookahead bias
-comb_df['sentiment'] = comb_df['sentiment'].shift(1)
+df_combined_sentiment_stock_price['sentiment'] = df_combined_sentiment_stock_price['sentiment'].shift(1)
 
 # Dropping NAs so they are not compared
-drop_df = comb_df.dropna()
+drop_df = df_combined_sentiment_stock_price.dropna()
 
-show_sentiment_stock_price_combined_charts()
+# Launch the sentiment vs stock price comparison charts
+show_sentiment_stock_price_combined_charts(df_combined_sentiment_stock_price)
 
 # Comparing matches
-match = (drop_df['sentiment'].apply(lambda x: x > 0) == drop_df['returns'].apply(lambda x: x > 0))
+match_for_accuracy = (drop_df['sentiment'].apply(lambda x: x > 0) == drop_df['returns'].apply(lambda x: x > 0))
 
 # Counting instances where they match
-match = match.value_counts().rename({False: "Didn't predict return",
-                                     True: "Successfully predicted return"}).to_frame()
+match_for_accuracy = match_for_accuracy.value_counts().rename({False: "Didn't predict return",
+                                                               True: "Successfully predicted return"}).to_frame()
 
-show_prediction_accuracy_charts()
+show_prediction_accuracy_charts(match_for_accuracy)
