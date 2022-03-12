@@ -1,11 +1,17 @@
+from datetime import timedelta
+
 import pandas as pd
-from datetime import timedelta, datetime
 
 # Specify start and periods, the number of periods (days).
 # dRan1 = pd.date_range(start='2017-01-01', periods=13, inclusive='right')
 
-for d in pd.date_range(start='2022-02-01', periods=5):
-    date = pd.to_datetime(d).date() + timedelta(days=1)
-    strptime = date.strftime("%Y-%m-%d")
-    print(strptime)
-    print(type(strptime))
+for d in pd.date_range(start='2022-02-01', periods=10, inclusive='left'):
+    original_date = pd.to_datetime(d).date()
+    next_date = pd.to_datetime(d).date() + timedelta(days=1)
+    strptime = next_date.strftime("%Y-%m-%d")
+    print('Original {}-{}, New {}-{}'.format(original_date, type(original_date), strptime, type(strptime)))
+
+new_date = pd.to_datetime('2022-02-01').date()
+print(new_date, type(new_date))
+updated_date = (new_date + timedelta(days=10)).strftime("%Y-%m-%d")
+print(updated_date, type(updated_date))
