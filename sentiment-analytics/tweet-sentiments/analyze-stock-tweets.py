@@ -7,7 +7,8 @@ plt.style.use('fivethirtyeight')
 
 
 def load_data():
-    data = pd.read_csv('data/stock_tweets_simple.csv')
+    # data = pd.read_csv('data/stock_tweets_simple.csv')
+    data = pd.read_csv(r'E:\nus-assignments\aussie-trader-app\sentiment-analytics\feed-real-time\data\download_stock_tweets.csv')
     return data
 
 
@@ -37,6 +38,7 @@ df['Subjectivity'] = df['Text'].apply(get_subjectivity)
 df['Polarity'] = df['Text'].apply(get_polarity)
 df['Analysis'] = df['Polarity'].apply(get_positive_negative_neutral_analysis)
 print(df)
+print(df['Subjectivity'])
 
 # Print word cloud
 all_words = ' '.join(txt for txt in df['Text'])
