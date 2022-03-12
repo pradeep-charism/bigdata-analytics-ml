@@ -11,7 +11,7 @@ def load_data():
     return data
 
 
-def getSentiment(df, measurement="compound"):
+def get_sentiment(df, measurement="compound"):
     """
     Given a DF of tweets, analyzes the tweets and returns a new DF
     of sentiment scores based on the given measurement.
@@ -33,7 +33,7 @@ def getSentiment(df, measurement="compound"):
     return sent_df
 
 
-def getStockPrices(ticker, start, end):
+def get_stock_prices(ticker, start, end):
     """
     Gets the historical daily prices between two dates. Scaling the prices based on a
     given sentiment dataframe.
@@ -58,88 +58,80 @@ def getStockPrices(ticker, start, end):
     return stock_df
 
 
-df = load_data()
-print(df.head())
+def show_sentiment_chart():
+    global fig
+    fig = px.bar(sent_df,
+                 x=sent_df['Date'],
+                 y=sent_df['sentiment'],
+                 title="Sentiment Score over Time")
+    fig.show()
 
-sent_df = getSentiment(df)
+
+def show_stock_returns_chart():
+    global fig
+    fig = px.bar(stock_df,
+                 x=stock_df['Date'],
+                 y=stock_df['returns'],
+                 title="Stock % Returns over Time")
+    fig.show()
+
+
+def show_sentiment_stock_price_combined_charts():
+    global fig
+    print(comb_df)
+    fig = px.bar(
+        comb_df,
+        x='Date',
+        y=['returns', 'sentiment'],
+        barmode='group',
+        title="Returns & Sentiment over Time",
+        labels={"value": "Return & Sentiment Values"}
+    )
+    fig.show()
+
+
+def show_prediction_accuracy_charts():
+    global fig
+    print(match)
+    fig = px.bar(
+        match,
+        x=0,
+        y=match.index,
+        color=match.index,
+        title="Instances when Sentiment predicts Return",
+        labels={"index": "Prediction",
+                "0": "Count"}
+    )
+    fig.show()
+
+
+# Load the stock data from  file
+df = load_data()
+
+# Build the sentiment analytics data frame
+sent_df = get_sentiment(df)
 print(sent_df)
 
-
-fig = px.bar(sent_df,
-             x=sent_df['Date'],
-             y=sent_df['sentiment'],
-             title="Sentiment Score over Time")
-
-fig.show()
-
-
-stock_df = getStockPrices(
-    "TSLA",
-    "2022-02-02",
-    "2022-02-10"
-)
-
+# Retrieve the stock prices from Yahoo finance
+stock_df = get_stock_prices("TSLA", "2022-02-02", "2022-02-10")
 print(stock_df)
 
-fig = px.bar(stock_df,
-             x=stock_df['Date'],
-             y=stock_df['returns'],
-             title="Stock % Returns over Time")
-
-fig.show()
-
-# Merging the two DF
+# Merge the two sentiment and stock prices data frames
 comb_df = sent_df.merge(stock_df, how='outer', sort=True)
 
 # Shifting the sentiment scores 1 day to compensate for lookahead bias
 comb_df['sentiment'] = comb_df['sentiment'].shift(1)
 
-# Scaling the data
-# scaler = MinMaxScaler(
-#     feature_range=(
-#         comb_df['sentiment'].min(), comb_df['sentiment'].max()
-#     )
-# )
-
-# comb_df[['returns']] = scaler.fit_transform(comb_df[['returns']])
-
-# How often sentiment matched return
-
 # Dropping NAs so they are not compared
 drop_df = comb_df.dropna()
 
+show_sentiment_stock_price_combined_charts()
+
 # Comparing matches
-match = (drop_df['sentiment'].apply(lambda x: x>0)==drop_df['returns'].apply(lambda x: x>0))
+match = (drop_df['sentiment'].apply(lambda x: x > 0) == drop_df['returns'].apply(lambda x: x > 0))
 
 # Counting instances where they match
 match = match.value_counts().rename({False: "Didn't predict return",
                                      True: "Successfully predicted return"}).to_frame()
 
-print(match)
-
-print(comb_df)
-
-fig = px.bar(
-    comb_df,
-    x='Date',
-    y=['returns', 'sentiment'],
-    barmode='group',
-    title="Returns & Sentiment over Time",
-    labels={"value": "Return & Sentiment Values"}
-)
-
-fig.show()
-
-
-fig = px.bar(
-    match,
-    x=0,
-    y=match.index,
-    color=match.index,
-    title="Instances when Sentiment predicts Return",
-    labels={"index": "Prediction",
-            "0": "Count"}
-)
-
-fig.show()
-
+show_prediction_accuracy_charts()
