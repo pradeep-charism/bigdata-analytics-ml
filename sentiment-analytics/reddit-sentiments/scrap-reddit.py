@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import praw
 from praw.models import MoreComments
@@ -10,6 +12,24 @@ reddit_read_only = praw.Reddit(client_id=client_id,  # your client id
 
 subreddit = reddit_read_only.subreddit("wallstreetbets")
 tickerlist = ['TSLA']
+
+for submission in subreddit.search("GME", sort='top', time_filter='day'):
+    print(datetime.fromtimestamp(submission.created))
+    print(submission.comments, submission.title)
+
+exit(1)
+
+for submission in subreddit.top(limit=2, time_filter='day'):
+    print(datetime.fromtimestamp(submission.created))
+    print(submission.comments, submission.title)
+
+exit(1)
+
+
+for submission in subreddit.search("GME", time_filter='day'):
+    print(datetime.fromtimestamp(submission.created))
+    print(submission.comments, submission.title)
+
 
 hot = subreddit.hot(limit=10)
 sum = [0] * len(tickerlist)  # our output array
@@ -25,11 +45,14 @@ for submissions in hot:
                 if isinstance(comment, MoreComments):
                     continue
                 counttotal += 1
-                for i, ticker in enumerate(tickerlist):
-                    if ticker in comment.body:
-                        sum[i] = sum[i] + 1
+                print(comment.body)
+                # for i, ticker in enumerate(tickerlist):
+                #     if ticker in comment.body:
+                #         sum[i] = sum[i] + 1
 
+exit(0)
 output = pd.DataFrame(data={'Tick': tickerlist, 'Counts': sum})
+print('Total comments read:', output)
 print('Total comments read:', counttotal)
 print(output[output['Counts'] > 0])
 
@@ -49,6 +72,7 @@ posts_dict = {"Title": [], "Post Text": [],
 
 for post in posts:
     # Title of each post
+
     posts_dict["Title"].append(post.title)
     # Text inside a post
     posts_dict["Post Text"].append(post.selftext)
