@@ -20,10 +20,11 @@ def download():
     for stock in tickers:
         download_df = data_reader.DataReader(stock, 'yahoo', start, end)
         download_df["Ticker"] = stock
+        print(download_df)
         return download_df
 
 
 df_downloaded_stock_data = download()
-df_downloaded_stock_data.to_csv(data_file, sep=',', index=False)
+# df_downloaded_stock_data.to_csv(data_file, sep=',', index=False)
 
-print(df_downloaded_stock_data)
+# print(df_downloaded_stock_data)
