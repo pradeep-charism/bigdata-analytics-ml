@@ -22,61 +22,53 @@ def macd_rsi():
     print(data)
 
 
-# https://algotrading101.com/learn/yahoo-finance-api-guide/
-# get_data(ticker, start_date=None, end_date=None, index_as_date=True, interval="1d")
+def pe_ta():
+    global ticker, combined_stats
+    # https://algotrading101.com/learn/yahoo-finance-api-guide/
+    # get_data(ticker, start_date=None, end_date=None, index_as_date=True, interval="1d")
+    # amazon_weekly = get_data(ticker, start_date="2022-02-02", end_date="2022-04-20", index_as_date=True, interval="1wk")
+    # print(amazon_weekly)
+    quote_table = si.get_quote_table(ticker, dict_result=False)
+    print(quote_table)
+    stats = si.get_stats_valuation(ticker)
+    print(f"\n Stats:{stats}")
+    # Divident
+    # quote_table = si.get_quote_table("aapl")
+    # quote_table["Forward Dividend & Yield"]
+    # print(quote_table)
+    cash_flow_statement = si.get_cash_flow(ticker)
+    print(cash_flow_statement)
+    exit(1)
+    # get list of Dow tickers
+    dow_list = si.tickers_nasdaq()
+    dow_stats = {}
+    for ticker in dow_list:
+        try:
+            temp = si.get_stats_valuation(ticker)
+            cash_flow_statement = si.get_cash_flow(ticker)
+            print(cash_flow_statement)
 
-# amazon_weekly = get_data(ticker, start_date="2022-02-02", end_date="2022-04-20", index_as_date=True, interval="1wk")
-# print(amazon_weekly)
+            if temp['Market Cap (intraday)'] > '1B':
+                print(temp)
+            # temp = temp.iloc[:, :2]
+            # temp.columns = ["Attribute", "Recent"]
+            # dow_stats[ticker] = temp
+        except Exception as ex:
+            print(ex)
+    # dow_stats
+    exit(1)
+    combined_stats = pd.concat(dow_stats)
+    combined_stats = combined_stats.reset_index()
+    del combined_stats["level_1"]
+    # update column names
+    combined_stats.columns = ["Ticker", "Attribute", "Recent"]
+    print(combined_stats)
+    pe_ratios = combined_stats[combined_stats["Attribute"] == "Trailing P/E"].reset_index()
+    print(pe_ratios)
+    pe_ratios_sorted = pe_ratios.sort_values('Recent', ascending=False)
+    print(pe_ratios_sorted)
 
-quote_table = si.get_quote_table(ticker, dict_result=False)
-print(quote_table)
 
-stats = si.get_stats_valuation(ticker)
-print(f"\n Stats:{stats}")
+# pe_ta()
 
-# Divident
-# quote_table = si.get_quote_table("aapl")
-# quote_table["Forward Dividend & Yield"]
-# print(quote_table)
-
-cash_flow_statement = si.get_cash_flow(ticker)
-print(cash_flow_statement)
-exit(1)
-
-# get list of Dow tickers
-dow_list = si.tickers_nasdaq()
-
-dow_stats = {}
-for ticker in dow_list:
-    try:
-        temp = si.get_stats_valuation(ticker)
-        cash_flow_statement = si.get_cash_flow(ticker)
-        print(cash_flow_statement)
-
-        if temp['Market Cap (intraday)'] > '1B':
-            print(temp)
-        # temp = temp.iloc[:, :2]
-        # temp.columns = ["Attribute", "Recent"]
-        # dow_stats[ticker] = temp
-    except Exception as ex:
-        print(ex)
-
-# dow_stats
-
-exit(1)
-
-combined_stats = pd.concat(dow_stats)
-combined_stats = combined_stats.reset_index()
-
-del combined_stats["level_1"]
-# update column names
-combined_stats.columns = ["Ticker", "Attribute", "Recent"]
-print(combined_stats)
-
-pe_ratios = combined_stats[combined_stats["Attribute"] == "Trailing P/E"].reset_index()
-print(pe_ratios)
-
-pe_ratios_sorted = pe_ratios.sort_values('Recent', ascending=False)
-print(pe_ratios_sorted)
-
-# macd_rsi()
+macd_rsi()

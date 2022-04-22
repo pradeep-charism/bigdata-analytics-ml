@@ -25,3 +25,13 @@ https://algotrading101.com/learn/yahoo-finance-api-guide/
 
 http://theautomatic.net/yahoo_fin-documentation/
 
+
+pip install .\TA_Lib-0.4.24-cp39-cp39-win_amd64.whl
+# pip install panda
+# pip install pandas_datareader
+# pip install matplotlib
+# pip install scipy
+# pip install cython
+# pip install TA-lib
+
+
