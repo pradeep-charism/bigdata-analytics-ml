@@ -16,3 +16,12 @@ if __name__ == "__main__":
   process.crawl(TestSpider)
   process.start()
 
+
+
+
+Yahoo finance:
+-------------
+https://algotrading101.com/learn/yahoo-finance-api-guide/
+
+http://theautomatic.net/yahoo_fin-documentation/
+
